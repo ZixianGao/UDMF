@@ -12,7 +12,6 @@ def plot_embedding_2D(data, label, title,description):
     x_range = plt.gca().get_xlim()
     y_range = plt.gca().get_ylim()
 
-    # 计算文本位置（下方中心）
     x_center = (x_range[0] + x_range[1]) / 2
     y_bottom = y_range[0]
     fig = plt.figure()
@@ -48,6 +47,6 @@ tsne_2D = TSNE(n_components=3, init='pca', random_state=0)
 result_2D = tsne_2D.fit_transform(vision_mus)
     
 print('Finished......')
-fig1 = plot_embedding_2D(result_2D, labels, 't-SNE','ours-UE+CA+IB')	# 将二维数据用plt绘制出来
+fig1 = plot_embedding_2D(result_2D, labels, 't-SNE','ours-UE+CA+IB')
 fig1.show()
 plt.pause(50)
