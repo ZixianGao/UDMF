@@ -1,10 +1,8 @@
 import torch
 from torch import nn
 from torch.nn import Parameter
-import torch.nn.functional as F  #pytorch 中有 linear函数
+import torch.nn.functional as F  
 import sys
-
-# Code adapted from the fairseq repo.
 
 class MultiheadAttention(nn.Module):
     """Multi-headed attention.
@@ -14,20 +12,18 @@ class MultiheadAttention(nn.Module):
     def __init__(self, embed_dim, num_heads, attn_dropout=0.,
                  bias=True, add_bias_kv=False, add_zero_attn=False):
         super().__init__()
-        self.embed_dim = embed_dim       #嵌入维度
-        self.num_heads = num_heads        #头的数量
-        self.attn_dropout = attn_dropout        #dropout
-        self.head_dim = embed_dim // num_heads       #head 的维度，嵌入的维度大小必须能够整除head 的数量
+        self.embed_dim = embed_dim       
+        self.num_heads = num_heads        
+        self.attn_dropout = attn_dropout        
+        self.head_dim = embed_dim // num_heads       
         assert self.head_dim * num_heads == self.embed_dim, "embed_dim must be divisible by num_heads"
         self.scaling = self.head_dim ** -0.5
 
-        self.in_proj_weight = Parameter(torch.Tensor(3 * embed_dim, embed_dim))   #根据维度设置其权重
-        self.register_parameter('in_proj_bias', None)    #将一个不可训练的类型tensor 转换成可以训练的类型 parameter ，并且将其绑定到这个module中
-        #上面是 对应的名字和参数    Parameter同理 ，区别在于Tensor的属性都有，比如根据data访问数据值，grad访问梯度；r主要是用来添加模块，p可以通过注册网络的时候的name获取
+        self.in_proj_weight = Parameter(torch.Tensor(3 * embed_dim, embed_dim))   
+        self.register_parameter('in_proj_bias', None)    
         if bias:
             self.in_proj_bias = Parameter(torch.Tensor(3 * embed_dim))
-        self.out_proj = nn.Linear(embed_dim, embed_dim, bias=bias)      #nn.Linear（） 用于设置网络中的全连接层，全连接层
-        #输入和输出都是二维张量，一般形状为  [batch_size, size]
+        self.out_proj = nn.Linear(embed_dim, embed_dim, bias=bias)    
 
         if add_bias_kv:
             self.bias_k = Parameter(torch.Tensor(1, 1, embed_dim))
@@ -39,9 +35,9 @@ class MultiheadAttention(nn.Module):
 
         self.reset_parameters()
 
-    def reset_parameters(self):    #res参数
-        nn.init.xavier_uniform_(self.in_proj_weight)    #Xavier  初始化， uniform 是均匀分布
-        nn.init.xavier_uniform_(self.out_proj.weight)      #初始化输出权重
+    def reset_parameters(self):    
+        nn.init.xavier_uniform_(self.in_proj_weight)    
+        nn.init.xavier_uniform_(self.out_proj.weight)    
         if self.in_proj_bias is not None:
             nn.init.constant_(self.in_proj_bias, 0.)
             nn.init.constant_(self.out_proj.bias, 0.)
@@ -58,7 +54,6 @@ class MultiheadAttention(nn.Module):
         the key by passing a binary ByteTensor (`key_padding_mask`) with shape:
         batch x src_len, where padding elements are indicated by 1s.
         """
-        # q query  k keys  自己写的
         qkv_same = query.data_ptr() == key.data_ptr() == value.data_ptr()
         kv_same = key.data_ptr() == value.data_ptr()
 
